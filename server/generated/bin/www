@@ -1,0 +1,158 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('generated:server');
+var http = require('http');
+const {Server} = require('socket.io');
+require('dotenv').config();
+var {pool, countCodeblocks} = require('./../public/javascripts/connection');
+const { socketJoinRoom } = require('../public/javascripts/sockets/join-room');
+const {lobbyCheck, checkIfTeacher, getTeachersRoom} = require('../public/javascripts/sockets/check-lobby');
+const { endRoom, leaveRoom } = require('../public/javascripts/sockets/end-room');
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+      origin: "http://localhost:3000", //host for react front-end
+      methods: ["GET", "POST"]
+  },
+});
+
+//determine how many codeblocks there are 
+// let codeblockQty = countCodeblocks();
+// console.log(codeblockQty);
+
+
+//this variable will store the mentor of each of the rooms
+// KEY mentorSocketId {str}, VALUE roomId {str} 
+let codeblockTeachers = new Map();
+let teachersSet = new Set();
+
+//-------- SOCKETS -------------
+io.on("connection", (socket) => {
+  console.log('user connected ' + socket.id);
+
+  console.log(io.sockets.adapter.rooms);
+
+  socket.on("join-room", (data) => { 
+    console.log('in join-room')
+    socketJoinRoom(io, socket, data, codeblockTeachers, teachersSet);
+  });
+
+  socket.on('lobby-check', (data) => {
+    console.log('in lobby-check')
+    lobbyCheck(io, socket, codeblockTeachers, teachersSet);
+  })
+
+  //when the mentor ends the room by leaving the tab or pressing button
+  socket.on('end-room', (data) => {
+    endRoom(io, socket, data.room, data.code, codeblockTeachers, teachersSet);
+  });
+
+  socket.on('leave-room', (data) => {
+    leaveRoom(io, socket, data.room);
+  })
+
+  //this listenes for when code is updated by the mentod
+  //data.room {str} "room-2"
+  //data.code {str} new code to stream to listening rooms
+  socket.on('upd-mentor', (data) => {
+    socket.to(data.room).emit("code-update", {code: data.code});
+  })
+
+  socket.on("disconnecting", (data) => {
+    console.log(`${socket.id} disconnects`);
+    console.log(io.sockets.adapter.rooms);
+    if(checkIfTeacher(io, socket, codeblockTeachers, teachersSet)){
+      const room = getTeachersRoom(socket, codeblockTeachers);
+      endRoom(io, socket, room, undefined, codeblockTeachers, teachersSet);
+    }
+  });
+
+});
+
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+  console.log(process.env.NODE_ENV);
+  console.log('Listening on ' + bind);
+}

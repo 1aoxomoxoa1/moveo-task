@@ -1,0 +1,22 @@
+.codeblock-detail{
+    display: flex;
+    /* justify-content: center; */
+
+    box-sizing: border-box;
+    border: 1px solid black;
+    background-color: #C2E5D3;
+    margin: 15px 0px; 
+}
+
+.codeblock-detail:hover{
+    background-color: #8cceac;
+}
+
+.details-number{
+    flex-basis: 40%;
+}
+
+
+.details-name{
+    flex-basis: 60%;
+}

@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  
+  app:
+    image: node:18-alpine
+    container_name: moveo-server
+    command: sh -c "npm install && npm start"
+    ports:
+      - 3000:3000
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: top_secret99
+      MYSQL_DB: codeblocks
+
+  db: 
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: top_secret99
+    container_name: moveo-db
+
+# volumes:
+#   codeblocks-content: 
