@@ -4,8 +4,7 @@ services:
   app:
     image: node:18-alpine
     volumes:
-      # - ./server/generated:/app/server
-        -data:app/server
+      - ./server/generated:/app/server
     working_dir: /app/server
     command: npm start
     ports:
@@ -26,8 +25,7 @@ services:
       MYSQL_DB: codeblocks
     container_name: moveo-db
     volumes:
-        -data:/docker-entrypoint-initdb.d
-        # - ./server/generating_db/:/docker-entrypoint-initdb.d
+        - ./server/generating_db/:/docker-entrypoint-initdb.d
         #above works with local
 
 
