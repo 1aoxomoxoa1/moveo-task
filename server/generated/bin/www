@@ -28,7 +28,7 @@ var server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-      origin: "http://localhost:3000", //host for react front-end
+      origin: ["http://localhost:3000", "https://move-task-frontend.onrender.com"], //host for react front-end
       methods: ["GET", "POST"]
   },
 });

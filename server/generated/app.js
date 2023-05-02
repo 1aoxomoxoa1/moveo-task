@@ -19,7 +19,7 @@ app.set('view engine', 'ejs');
 
 //middlewares below
 const corsObj = {
-  origin: ["http://localhost:3000", "https://shoe-store-pwtf.onrender.com"],
+  origin: ["http://localhost:3000", "https://move-task-frontend.onrender.com"],
   methods: ["GET", "POST", "DELETE", "PUT"],
   credentials: true
 }
