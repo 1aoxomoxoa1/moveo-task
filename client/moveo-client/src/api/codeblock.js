@@ -26,6 +26,7 @@ function getUrlParam(param){
 
 async function getCodeblock(id){
     try {
+        console.log('calling getCodeblock')
         let codeblockServer = await axios.get(`${process.env.REACT_APP_SERVER_ROUTE}/codeblock?id=${id}`);
         console.log(codeblockServer)
         return codeblockServer.data[0]; 

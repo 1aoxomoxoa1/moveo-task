@@ -48,6 +48,7 @@ function CodeBlock({socket}){
 
     //on page load
     useEffect( () => {
+        console.log('useEffect here')
         async function within(){
             let id = await codeblockUseEffectFn(setCodeEditor, setCodeViewer, setName);
             setId(id);

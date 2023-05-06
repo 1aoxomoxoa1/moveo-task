@@ -44,7 +44,9 @@ export class SocketClass{
         const room = `room-${id}`;
         console.log(`emitting to ${room}`);
         console.log(code);
-        socket.emit('upd-mentor', {code: code, room: room});
+        if(code){
+            socket.emit('upd-mentor', {code: code, room: room});
+        }
     }
 
     //function to make the MENTOR start chain of leaving the room
