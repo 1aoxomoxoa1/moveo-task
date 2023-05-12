@@ -7,27 +7,8 @@ const { getSeatableAuth } = require('../public/javascripts/utils/seatable-handle
 require("dotenv").config();
 
 
-/* GET home page. -- gets all of the codeblocks names and ids */
-// router.get('/', (req, res) => {
-    
-//     pool.query(  'SELECT ID, name FROM code',
-//         function(err, results) {
-//             if(err){
-//                 console.error(err);
-//             }else{
-//                 console.log('SQL query start');
-//                 console.log(results);
-//                 console.log('SQL query end');
-//                 res.send(results);
-//             }
-//         }
-//     );
-
-// });
-
-
-
-
+//** This is in the lobby and the get request retrieves name, id of all of the codeblocks
+// */
 router.get('/', async (req, res) => {
     
     let seatableAuthInfo = await getSeatableAuth();

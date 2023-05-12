@@ -61,15 +61,4 @@ router.get('/', async (req, res) => {
 });
 
 
-//Posting for updating the code block
-router.post('/', (req, res) => {
-
-    //get the name of the block of code and the body of code text
-    const name = req.name; 
-    const codeBody = req.code; 
-
-    //I want to understand how I will write database query
-    
-});
-
 module.exports = router;

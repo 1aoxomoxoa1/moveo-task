@@ -53,19 +53,6 @@ async function saveCode(room, code){
     const data = await axios.post(`https://cloud.seatable.io/dtable-db/api/v1/query/${seatableAuthInfo.dtable_uuid}/`, body, options) 
 
     console.log(data);
-
-    // ----- CODE BEFORE MOVE TO SEATABLE ----- 
-    // pool.query('UPDATE code SET code = ? WHERE ID = ?', 
-    //     [code, roomId],
-    //     function(err, results) {
-    //         if(err){
-    //             console.error(err);
-    //         }else{
-    //             console.log('updated code')
-    //             console.log(results);
-    //         }
-    //     }
-    // )
 }
 
 
