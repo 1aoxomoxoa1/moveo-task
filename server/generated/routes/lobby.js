@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 const pool = require('../public/javascripts/connection');
 const axios = require('axios');
+const { getSeatableAuth } = require('../public/javascripts/utils/seatable-handlers');
+
 require("dotenv").config();
 
 
@@ -23,10 +25,16 @@ require("dotenv").config();
 
 // });
 
+
+
+
 router.get('/', async (req, res) => {
+    
+    let seatableAuthInfo = await getSeatableAuth();
+        
     const options = { 
         headers: { 
-            "Authorization": process.env.SEATABLE_ACCESS_CODE
+            "Authorization": `Token ${seatableAuthInfo.access_token}`
         }
     }
 
@@ -34,11 +42,19 @@ router.get('/', async (req, res) => {
         'sql': "SELECT ID, name FROM codeblocks"
     }
 
-    const data = await axios.post(`https://cloud.seatable.io/dtable-db/api/v1/query/${process.env.SEATABLE_TABLE_ID}/`, body, options) 
+    console.log('in the call to lobby.js');
+    console.log(req.session);
+    req.session.seatableAuth = seatableAuthInfo;
+    console.log(req.session);
+
+
+    console.log('calling lobby data from seatable');
+    const data = await axios.post(`https://cloud.seatable.io/dtable-db/api/v1/query/${seatableAuthInfo.dtable_uuid}/`, body, options) 
 
     const seatableData = data.data
     let tableDict = {}
 
+    //organizing the mass of data that seatable gives us
     for(const metadata of seatableData.metadata){
         tableDict[metadata.key] = metadata.name;
     }
@@ -53,5 +69,8 @@ router.get('/', async (req, res) => {
 
     res.send(data.data.results)
 });
+
+
+
 
 module.exports = router;

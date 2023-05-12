@@ -4,12 +4,14 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
+const session = require('express-session')
 
 
 //importing the routers for the routes
 var lobbyRouter = require('./routes/lobby');
 var usersRouter = require('./routes/users');
 var codeblockRouter = require('./routes/codeblock');
+var authRouter = require('./routes/auth');
 
 var app = express();
 
@@ -32,8 +34,29 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+app.set("trust proxy", 1);
+
+
+//making the session for my task
+app.use(session({
+  key: "userid",
+  secret: "mysecretwooo",
+  resave: false,
+  saveUninitialized: true,
+  name: "CodeblockSession",
+  cookie: {
+      expires: 60*60*24*24,
+      secure: app.get('env') === 'production' ? true : false,
+      sameSite: app.get('env') === 'production' ? 'none':'lax',
+      // sameSite: 'none', 
+      httpOnly: true
+  }
+}))
+
+
 //setting routes from routers
 app.use('/', lobbyRouter);
+app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/codeblock', codeblockRouter);
 

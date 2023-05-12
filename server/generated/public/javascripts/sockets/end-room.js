@@ -1,5 +1,6 @@
 const pool = require('../connection.js');
 let axios = require('axios');
+const { getSeatableAuth } = require('../utils/seatable-handlers.js');
 
 // //** FN Will cause 
 //  * 
@@ -15,9 +16,6 @@ function endRoom(io, socket, room, code, codeblockTeachers, teachersSet){
     console.log(room);
     console.log(io.sockets.adapter.rooms.get(room));
     console.log(io.sockets.adapter.rooms.get(room));
-    
-    
-    
     
     //will send a message to all of themm
     io.to(room).emit("room-end", {room: room});
@@ -40,9 +38,11 @@ async function saveCode(room, code){
     console.log(roomId);
     console.log(code);
 
+    let seatableAuthInfo = await getSeatableAuth();
+
     const options = { 
         headers: { 
-            "Authorization": process.env.SEATABLE_ACCESS_CODE
+            "Authorization": `Token ${seatableAuthInfo.access_token}`
         }
     }
 
@@ -50,7 +50,7 @@ async function saveCode(room, code){
         "sql" : `UPDATE codeblocks SET code='${code}' WHERE ID='${roomId}'`
     }
 
-    const data = await axios.post(`https://cloud.seatable.io/dtable-db/api/v1/query/${process.env.SEATABLE_TABLE_ID}/`, body, options) 
+    const data = await axios.post(`https://cloud.seatable.io/dtable-db/api/v1/query/${seatableAuthInfo.dtable_uuid}/`, body, options) 
 
     console.log(data);
 
